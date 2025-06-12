@@ -1,4 +1,3 @@
-send_discord_message("✅ 測試訊息：Render 成功啟動！")
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
