@@ -3,8 +3,10 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import time
 
+# ✅ 請貼上你的 Discord Webhook URL（不要漏掉開頭和結尾）
 DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1382649011231658014/ZAD9IvmhqSSliqPnBzBP8J1l7GtxM7QL6iNoaHnU-HG56a3IuU2lxfGgPAdJ-QvM6Q-5'
 
+# ✅ 傳送 Discord 訊息
 def send_discord_message(content):
     try:
         response = requests.post(DISCORD_WEBHOOK_URL, json={"content": content})
@@ -15,19 +17,25 @@ def send_discord_message(content):
     except Exception as e:
         print("❗ 傳送失敗：", e)
 
+# ✅ 抓取所有活動連結
 def get_all_activity_links():
     url = "https://tixcraft.com/activity"
-    resp = requests.get(url)
-    soup = BeautifulSoup(resp.text, "html.parser")
-    events = soup.select("div.event-info a")
-    links = []
-    for event in events:
-        name = event.text.strip()
-        href = event.get("href")
-        if href:
-            links.append(("https://tixcraft.com" + href, name))
-    return links
+    try:
+        resp = requests.get(url)
+        soup = BeautifulSoup(resp.text, "html.parser")
+        events = soup.select("div.event-info a")
+        links = []
+        for event in events:
+            name = event.text.strip()
+            href = event.get("href")
+            if href:
+                links.append(("https://tixcraft.com" + href, name))
+        return links
+    except Exception as e:
+        print("⚠️ 抓取活動失敗：", e)
+        return []
 
+# ✅ 檢查票券狀態
 def check_ticket_status(concert_url, concert_name):
     try:
         resp = requests.get(concert_url)
@@ -46,7 +54,10 @@ def check_ticket_status(concert_url, concert_name):
         print(f"⚠️ 無法檢查 {concert_name}：{e}")
     return None
 
+# ✅ 主迴圈：每 60 秒檢查一次
 def run_checker():
+    send_discord_message("✅ 測試訊息：Render 已成功啟動並開始監控票券！")
+
     while True:
         now = datetime.now().strftime("%H:%M:%S")
         print(f"🔍 [{now}] 正在抓取全部活動...")
@@ -69,5 +80,6 @@ def run_checker():
         print(f"⏳ [{now}] 60 秒後再次檢查...\n")
         time.sleep(60)
 
+# ✅ 程式啟動點
 if __name__ == "__main__":
     run_checker()
